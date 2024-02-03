@@ -1,9 +1,10 @@
+// core modules
 import http from 'http';
 import dotenv from 'dotenv';
 import path from 'path';
 
+// dependencies & 3rd-parties
 dotenv.config({ path: path.resolve(__dirname, '../config.env') });
-
 import app from './app';
 
 const server = http.createServer(app);
