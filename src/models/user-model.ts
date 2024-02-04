@@ -1,14 +1,6 @@
-import { throws } from 'assert';
 import mongoose from 'mongoose';
 import validate from 'validator';
-
-interface iUser {
-  username: string;
-  email: string;
-  password: string;
-  passwordConfirm?: string;
-  Coverphoto?: string;
-}
+import { iUser } from '../utils/interfaces';
 
 const userSchema = new mongoose.Schema<iUser>({
   username: {
@@ -18,6 +10,7 @@ const userSchema = new mongoose.Schema<iUser>({
     type: String,
     validate: validate.isEmail,
     required: [true, 'An email must be present'],
+    unique: [true, 'Email already exist'],
   },
   password: {
     type: String,
@@ -36,5 +29,4 @@ const userSchema = new mongoose.Schema<iUser>({
 });
 
 const User = mongoose.model('User', userSchema);
-
-module.exports = User;
+export default User;

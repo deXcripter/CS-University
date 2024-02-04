@@ -15,6 +15,7 @@ const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use((0, morgan_1.default)('dev'));
 // middlewares
+console.log(process.env.NODE_ENV);
 app.use('/api/v1/', version_one_1.default);
 app.use('*', (req, res, next) => {
     return next(new app_error_1.default('This route does not exist', 404));

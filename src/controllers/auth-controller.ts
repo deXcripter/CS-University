@@ -1,28 +1,43 @@
 import { RequestHandler } from 'express';
 import jwt from 'jsonwebtoken';
 import appError from '../utils/app-error';
-import { Env } from '../utils/interfaces';
+import { iEnv } from '../utils/interfaces';
+import User from '../models/user-model';
 
 // functions
 const singToken: Function = (payload: number | string) => {
-  jwt.sign({ payload }, (process.env as unknown as Env).SECRET_KEY, {
-    expiresIn: (process.env as unknown as Env).TOKEN_EXPIRATION,
+  jwt.sign({ payload }, (process.env as unknown as iEnv).SECRET_KEY, {
+    expiresIn: (process.env as unknown as iEnv).TOKEN_EXPIRATION,
   });
 };
 
 // controllers
-
-export const signup: RequestHandler = (req, res, next) => {
+export const signup: RequestHandler = async (req, res, next) => {
   try {
-    console.log(req.body);
-    const { email, password, confirmPassword } = req.body as {
-      email?: string;
-      password?: string;
-      confirmPassword?: string;
+    const { email, password, passwordConfirm } = req.body as {
+      email: string;
+      password: string;
+      passwordConfirm: string;
     };
 
-    if (!email || !password || !confirmPassword) {
+    if (!email || !password || !passwordConfirm) {
+      // console.log(email, password, passwordConfirm);
+
       return next(new appError('Incomplete credentials', 400));
+    }
+
+    const body = {
+      email,
+      password,
+      passwordConfirm,
+    };
+
+    // creating the new user
+    console.log(body);
+    try {
+      const user = await User.create(body);
+    } catch (err) {
+      return next(err);
     }
 
     // sign and issue the token

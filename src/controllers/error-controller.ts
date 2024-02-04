@@ -1,16 +1,10 @@
 import { RequestHandler, Request, Response, NextFunction } from 'express';
 import appError from '../utils/app-error';
-
-// INTERFACES
-interface Err extends Error {
-  statusCode: number;
-  status: string;
-  isOperational: boolean;
-}
+import { iErr } from '../utils/interfaces';
 
 // FUNCTIONS
 // -- HANDLE DEVELOPMENT ERRORS HERE
-const handleDevelopmentErrors = (err: Err, req: Request, res: Response) => {
+const handleDevelopmentErrors = (err: iErr, req: Request, res: Response) => {
   return res.status(err.statusCode).json({
     status: err.status,
     error: err,
@@ -20,10 +14,20 @@ const handleDevelopmentErrors = (err: Err, req: Request, res: Response) => {
 };
 
 // -- HANDLE PRODUCTION ERRORS HERE
+const handleOperationalErrors = (err: iErr, req: Request, res: Response) => {
+  return res.status(err.statusCode).json({ message: err.message });
+};
+
+const handleError11000 = (err: iErr, req: Request, res: Response) => {
+  const key = Object.keys(err.keyValue);
+
+  const message: string = `The ${key} is already in use. Please choose another`;
+  new appError(message, 400);
+};
 
 // MAIN GLOBAL ERROR HANDLER
 export const globalError = (
-  err: Err,
+  err: iErr,
   req: Request,
   res: Response,
   next: NextFunction
@@ -36,5 +40,10 @@ export const globalError = (
   }
 
   if (process.env.NODE_ENV === 'production') {
+    // console.log(err);
+    err.code === 11000 && handleError11000(err, req, res);
+    //
+    //
+    err.isOperational && handleOperationalErrors(err, req, res);
   }
 };

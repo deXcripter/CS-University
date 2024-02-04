@@ -13,6 +13,7 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 // middlewares
+console.log(process.env.NODE_ENV);
 app.use('/api/v1/', versionOne);
 
 app.use('*', (req, res, next) => {

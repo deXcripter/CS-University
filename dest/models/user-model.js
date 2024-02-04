@@ -13,6 +13,7 @@ const userSchema = new mongoose_1.default.Schema({
         type: String,
         validate: validator_1.default.isEmail,
         required: [true, 'An email must be present'],
+        unique: [true, 'Email already exist'],
     },
     password: {
         type: String,
@@ -30,4 +31,4 @@ const userSchema = new mongoose_1.default.Schema({
     },
 });
 const User = mongoose_1.default.model('User', userSchema);
-module.exports = User;
+exports.default = User;
