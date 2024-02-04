@@ -11,4 +11,7 @@ export const singup: RequestHandler = (req, res, next) => {
   if (!email || !password || !confirmPassword) {
     return next();
   }
+  console.log('user sugnup');
+
+  res.status(200).json({ status: 'success', message: 'user created' });
 };

@@ -8,7 +8,9 @@ import mongoose from 'mongoose';
 dotenv.config({ path: path.resolve(__dirname, '../config.env') });
 import app from './app';
 
-mongoose.connect(process.env.DATABASE as string);
+mongoose
+  .connect(process.env.LOCAL_DATABASE as string)
+  .then((data) => console.log('DB Connected'));
 
 const server = http.createServer(app);
 

@@ -1,3 +1,4 @@
+import { throws } from 'assert';
 import mongoose from 'mongoose';
 import validate from 'validator';
 
@@ -25,17 +26,14 @@ const userSchema = new mongoose.Schema<iUser>({
   passwordConfirm: {
     type: String,
     required: true,
+    validate: function (val: string) {
+      return (this as iUser).password === val;
+    },
   },
   Coverphoto: {
     type: String,
   },
 });
-
-// userSchema.pre('save', (next)=> {
-//   const user = this;
-//   if (user.isModified)
-
-// })
 
 const User = mongoose.model('User', userSchema);
 

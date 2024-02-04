@@ -4,7 +4,7 @@ import { singup } from '../controllers/auth-controller';
 const router = Router();
 
 // auth
-router.post('/singup', singup);
+router.post('/signup', singup);
 
 // normal controllers
 router.route('/').get().post().patch().delete();
