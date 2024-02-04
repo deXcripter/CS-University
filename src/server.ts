@@ -2,10 +2,13 @@
 import http from 'http';
 import dotenv from 'dotenv';
 import path from 'path';
+import mongoose from 'mongoose';
 
 // dependencies & 3rd-parties
 dotenv.config({ path: path.resolve(__dirname, '../config.env') });
 import app from './app';
+
+mongoose.connect(process.env.DATABASE as string);
 
 const server = http.createServer(app);
 
