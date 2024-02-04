@@ -1,12 +1,12 @@
-import express, { Router } from 'express';
-import { singup } from '../controllers/auth-controller';
+import express from 'express';
+import { signup } from '../controllers/auth-controller';
 
-const router = Router();
+const Router = express.Router();
 
 // auth
-router.post('/signup', singup);
+Router.post('/signup', signup);
 
 // normal controllers
-router.route('/').get().post().patch().delete();
+Router.route('/').get().post().patch().delete();
 
-export default router;
+export default Router;

@@ -36,7 +36,5 @@ export const globalError = (
   }
 
   if (process.env.NODE_ENV === 'production') {
-  } else {
-    console.log(err.message);
   }
 };
