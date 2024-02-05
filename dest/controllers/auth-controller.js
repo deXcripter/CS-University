@@ -3,13 +3,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.signup = void 0;
+exports.login = exports.signup = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const app_error_1 = __importDefault(require("../utils/app-error"));
 const user_model_1 = __importDefault(require("../models/user-model"));
 // functions
 const singToken = (payload) => {
-    jsonwebtoken_1.default.sign({ payload }, process.env.SECRET_KEY, {
+    return jsonwebtoken_1.default.sign({ id: payload }, process.env.SECRET_KEY, {
         expiresIn: process.env.TOKEN_EXPIRATION,
     });
 };
@@ -43,3 +43,21 @@ const signup = async (req, res, next) => {
     }
 };
 exports.signup = signup;
+const login = async (req, res, next) => {
+    const email = req.body.email;
+    const password = req.body.password;
+    // User.findOne({ email })
+    //   .maxTimeMS(15000)
+    //   .then((doc) => (user = doc as iUser))
+    //   .catch((err) => next(err));
+    const user = await user_model_1.default.findOne({ email })
+        .select('password')
+        .maxTimeMS(15000);
+    if (!user)
+        return next(new app_error_1.default('Invalid credientials', 400));
+    const token = singToken(user._id.toString());
+    res
+        .status(200)
+        .json({ status: 'success', message: 'logged in', data: user, token });
+};
+exports.login = login;

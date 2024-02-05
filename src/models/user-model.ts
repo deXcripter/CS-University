@@ -17,6 +17,7 @@ const userSchema = new mongoose.Schema<iUser>({
   password: {
     type: String,
     required: true,
+    select: false,
   },
   passwordConfirm: {
     type: String,
@@ -34,7 +35,6 @@ userSchema.pre('save', async function (next) {
   if (!this.isNew || !this.isModified('password')) next();
   this.password = await bcrypt.hash(this.password as string, 12);
   this.passwordConfirm = undefined;
-  console.log('hash password');
 });
 
 const User = mongoose.model('User', userSchema);

@@ -19,6 +19,7 @@ const userSchema = new mongoose_1.default.Schema({
     password: {
         type: String,
         required: true,
+        select: false,
     },
     passwordConfirm: {
         type: String,
@@ -36,7 +37,6 @@ userSchema.pre('save', async function (next) {
         next();
     this.password = await bcryptjs_1.default.hash(this.password, 12);
     this.passwordConfirm = undefined;
-    console.log('hash password');
 });
 const User = mongoose_1.default.model('User', userSchema);
 exports.default = User;

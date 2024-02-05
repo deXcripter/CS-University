@@ -17,7 +17,8 @@ const handleDevelopmentErrors = (err, req, res) => {
 };
 // -- HANDLE PRODUCTION ERRORS HERE
 const handleOperationalErrors = (err, req, res) => {
-    console.log('here');
+    console.log('handling operational error`');
+    console.log(err);
     return res.status(err.statusCode).json({ message: err.message });
 };
 const handleError11000 = (err, req, res) => {
@@ -33,11 +34,10 @@ const globalError = (err, req, res, next) => {
         handleDevelopmentErrors(err, req, res);
     }
     if (process.env.NODE_ENV === 'production') {
-        let error = Object.assign({}, err);
-        if (error.code === 11000) {
-            error = handleError11000(error, req, res);
-        }
-        error.isOperational && handleOperationalErrors(error, req, res);
+        if (err.code === 11000)
+            err = handleError11000(err, req, res);
+        // finally
+        err.isOperational && handleOperationalErrors(err, req, res);
     }
 };
 exports.globalError = globalError;
