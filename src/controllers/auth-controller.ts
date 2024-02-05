@@ -30,14 +30,12 @@ export const signup: RequestHandler = async (req, res, next) => {
       password,
       passwordConfirm,
     };
-
     // creating the new user
     try {
       await User.create(body);
     } catch (err) {
       return next(err);
     }
-
     // sign and issue the token
     const token = singToken(email);
 
@@ -53,16 +51,12 @@ export const login: RequestHandler = async (req, res, next) => {
   const email: string = (req.body as iBody).email;
   const password: string = (req.body as iBody).password;
 
-  // User.findOne({ email })
-  //   .maxTimeMS(15000)
-  //   .then((doc) => (user = doc as iUser))
-  //   .catch((err) => next(err));
-
   const user = await User.findOne({ email })
     .select('password')
     .maxTimeMS(15000);
 
-  if (!user) return next(new appError('Invalid credientials', 400));
+  if (!user || !(await user.comparePasswords!(password, user.password)))
+    return next(new appError('Invalid credientials', 400));
 
   const token: string = singToken(user._id.toString());
 

@@ -46,14 +46,10 @@ exports.signup = signup;
 const login = async (req, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
-    // User.findOne({ email })
-    //   .maxTimeMS(15000)
-    //   .then((doc) => (user = doc as iUser))
-    //   .catch((err) => next(err));
     const user = await user_model_1.default.findOne({ email })
         .select('password')
         .maxTimeMS(15000);
-    if (!user)
+    if (!user || !(await user.comparePasswords(password, user.password)))
         return next(new app_error_1.default('Invalid credientials', 400));
     const token = singToken(user._id.toString());
     res
