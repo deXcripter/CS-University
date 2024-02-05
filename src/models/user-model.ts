@@ -1,6 +1,8 @@
 import mongoose from 'mongoose';
 import validate from 'validator';
 import { iUser } from '../utils/interfaces';
+import bcrypt from 'bcryptjs';
+import { getUnpackedSettings } from 'http2';
 
 const userSchema = new mongoose.Schema<iUser>({
   username: {
@@ -26,6 +28,13 @@ const userSchema = new mongoose.Schema<iUser>({
   Coverphoto: {
     type: String,
   },
+});
+
+userSchema.pre('save', async function (next) {
+  if (!this.isNew || !this.isModified('password')) next();
+  this.password = await bcrypt.hash(this.password as string, 12);
+  this.passwordConfirm = undefined;
+  console.log('hash password');
 });
 
 const User = mongoose.model('User', userSchema);

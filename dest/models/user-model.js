@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
 const validator_1 = __importDefault(require("validator"));
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const userSchema = new mongoose_1.default.Schema({
     username: {
         type: String,
@@ -29,6 +30,13 @@ const userSchema = new mongoose_1.default.Schema({
     Coverphoto: {
         type: String,
     },
+});
+userSchema.pre('save', async function (next) {
+    if (!this.isNew || !this.isModified('password'))
+        next();
+    this.password = await bcryptjs_1.default.hash(this.password, 12);
+    this.passwordConfirm = undefined;
+    console.log('hash password');
 });
 const User = mongoose_1.default.model('User', userSchema);
 exports.default = User;

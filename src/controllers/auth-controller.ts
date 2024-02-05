@@ -21,8 +21,6 @@ export const signup: RequestHandler = async (req, res, next) => {
     };
 
     if (!email || !password || !passwordConfirm) {
-      // console.log(email, password, passwordConfirm);
-
       return next(new appError('Incomplete credentials', 400));
     }
 
@@ -33,9 +31,8 @@ export const signup: RequestHandler = async (req, res, next) => {
     };
 
     // creating the new user
-    console.log(body);
     try {
-      const user = await User.create(body);
+      await User.create(body);
     } catch (err) {
       return next(err);
     }
@@ -43,7 +40,9 @@ export const signup: RequestHandler = async (req, res, next) => {
     // sign and issue the token
     const token = singToken(email);
 
-    res.status(200).json({ status: 'success', message: 'user created', token });
+    res
+      .status(200)
+      .json({ status: 'success', message: 'Account created', token });
   } catch (err) {
     return next(err);
   }

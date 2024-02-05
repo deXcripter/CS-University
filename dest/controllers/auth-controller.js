@@ -18,7 +18,6 @@ const signup = async (req, res, next) => {
     try {
         const { email, password, passwordConfirm } = req.body;
         if (!email || !password || !passwordConfirm) {
-            // console.log(email, password, passwordConfirm);
             return next(new app_error_1.default('Incomplete credentials', 400));
         }
         const body = {
@@ -27,16 +26,17 @@ const signup = async (req, res, next) => {
             passwordConfirm,
         };
         // creating the new user
-        console.log(body);
         try {
-            const user = await user_model_1.default.create(body);
+            await user_model_1.default.create(body);
         }
         catch (err) {
             return next(err);
         }
         // sign and issue the token
         const token = singToken(email);
-        res.status(200).json({ status: 'success', message: 'user created', token });
+        res
+            .status(200)
+            .json({ status: 'success', message: 'Account created', token });
     }
     catch (err) {
         return next(err);

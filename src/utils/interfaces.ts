@@ -26,7 +26,7 @@ export interface iErr extends Error {
   status: string;
   isOperational: boolean;
   code?: number;
-  keyValue: {};
+  keyValue?: {};
 }
 
 /* 

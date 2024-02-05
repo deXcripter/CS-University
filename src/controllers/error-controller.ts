@@ -1,4 +1,4 @@
-import { RequestHandler, Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import appError from '../utils/app-error';
 import { iErr } from '../utils/interfaces';
 
@@ -20,10 +20,8 @@ const handleOperationalErrors = (err: iErr, req: Request, res: Response) => {
 };
 
 const handleError11000 = (err: iErr, req: Request, res: Response) => {
-  const key = Object.keys(err.keyValue);
-  const message: string = `The ${key} is already in use. Please choose another`;
-  // new appError(message, 400);
-  // err.isOperational = true;
+  const key = Object.keys(err.keyValue!);
+  const message: string = `${key} is already in use. Please choose another`;
   return new appError(message, 400);
 };
 

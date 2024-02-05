@@ -22,9 +22,7 @@ const handleOperationalErrors = (err, req, res) => {
 };
 const handleError11000 = (err, req, res) => {
     const key = Object.keys(err.keyValue);
-    const message = `The ${key} is already in use. Please choose another`;
-    // new appError(message, 400);
-    // err.isOperational = true;
+    const message = `${key} is already in use. Please choose another`;
     return new app_error_1.default(message, 400);
 };
 // MAIN GLOBAL ERROR HANDLER
