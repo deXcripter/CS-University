@@ -15,14 +15,16 @@ const handleDevelopmentErrors = (err: iErr, req: Request, res: Response) => {
 
 // -- HANDLE PRODUCTION ERRORS HERE
 const handleOperationalErrors = (err: iErr, req: Request, res: Response) => {
+  console.log('here');
   return res.status(err.statusCode).json({ message: err.message });
 };
 
 const handleError11000 = (err: iErr, req: Request, res: Response) => {
   const key = Object.keys(err.keyValue);
-
   const message: string = `The ${key} is already in use. Please choose another`;
-  new appError(message, 400);
+  // new appError(message, 400);
+  // err.isOperational = true;
+  return new appError(message, 400);
 };
 
 // MAIN GLOBAL ERROR HANDLER
@@ -40,10 +42,11 @@ export const globalError = (
   }
 
   if (process.env.NODE_ENV === 'production') {
-    // console.log(err);
-    err.code === 11000 && handleError11000(err, req, res);
-    //
-    //
-    err.isOperational && handleOperationalErrors(err, req, res);
+    let error: iErr = { ...err };
+    if (error.code === 11000) {
+      error = handleError11000(error, req, res);
+    }
+
+    error.isOperational && handleOperationalErrors(error, req, res);
   }
 };
