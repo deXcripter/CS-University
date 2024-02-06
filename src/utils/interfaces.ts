@@ -1,3 +1,5 @@
+import { Request } from 'express';
+
 // process.env interface
 export interface iEnv {
   PORT: number;
@@ -38,10 +40,19 @@ export interface iBody {
   passwordConfirm: string;
   email: string;
   username: string;
+  oldPassword: string;
 }
 
 export interface iDecoded {
   id: string;
   iat: number;
   exp: number;
+}
+
+export interface iReq extends Request {
+  loggedUser: {
+    id: string;
+    iat: string;
+    exp: string;
+  };
 }
