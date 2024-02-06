@@ -27,7 +27,10 @@ const handleError11000 = (err: iErr, req: Request, res: Response) => {
 };
 
 const handleValidationError = (err: iErr, req: Request, res: Response) => {
-  return new appError(err.message, 400);
+  const lastString = err.message.split(':').at(2);
+  const final = lastString!.split(',').at(0);
+
+  return new appError(final!, 400);
 };
 
 // MAIN GLOBAL ERROR HANDLER

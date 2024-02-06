@@ -66,27 +66,28 @@ export const login: RequestHandler = async (req, res, next) => {
 export const protection: RequestHandler = async (req, res, next) => {
   console.log('running protection middleware');
 
-  if (!req.headers.authorization)
-    return next(new appError(' login to access this route', 403));
-
-  const token = req.headers.authorization?.split(' ').at(1);
-  const Bearer = req.headers.authorization?.split(' ').at(0);
-
-  if (!Bearer?.startsWith('Bearer') || !token) {
+  // fetching the token
+  if (
+    !req.headers.authorization &&
+    !req.headers.authorization!.split(' ').at(0)?.startsWith('Bearer')
+  ) {
     return next(new appError(' login to access this route', 403));
   }
 
-  // change this any type later
+  // verifying the token
+  const token: any = req.headers.authorization?.split(' ').at(1);
   const decoded: any = jwt.verify(
     token,
     (process.env as any as iEnv).SECRET_KEY
   );
 
-  // finding the user
-  const user = await User.findById(decoded.id);
+  // checking if user still exists
+  const user = await User.findById(decoded.id).select('passwordChangedAt');
   if (!user) return next(new appError('This user does not exists', 403));
 
-  console.log(user);
+  // check the timestamp
+  if (await user.comparePasswordChangedAt(decoded.iat))
+    return next(new appError('please login to access this route', 403));
 
   next();
 };

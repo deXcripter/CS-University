@@ -37,10 +37,7 @@ const userSchema = new mongoose.Schema<iUser>({
   coverPhoto: {
     type: String,
   },
-  passwordChangedAt: {
-    type: Date,
-    default: Date.now(),
-  },
+  passwordChangedAt: Date,
 });
 
 userSchema.pre('save', async function (next) {
@@ -49,11 +46,28 @@ userSchema.pre('save', async function (next) {
   this.passwordConfirm = undefined;
 });
 
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
+  this.passwordChangedAt = Date.now() - 1500;
+  return;
+});
+
 userSchema.methods.comparePasswords = async (
   trialPassword: string,
   storedPassword: string
 ): Promise<boolean> => {
   return await bcrypt.compare(trialPassword, storedPassword);
+};
+
+userSchema.methods.comparePasswordChangedAt = function (
+  decodedTimeStamp: number
+) {
+  if (this.passwordChangedAt) {
+    // const accountTimeStamp = ((this as any as iUser).passwordChangedAt.getTime() / 1000).toFixed(0);
+    const accountTimeStamp = parseInt(this.passwordChangedAt, 10);
+    return accountTimeStamp > decodedTimeStamp;
+  }
+  return false;
 };
 
 const User = mongoose.model('User', userSchema);

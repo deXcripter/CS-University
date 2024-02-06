@@ -19,7 +19,8 @@ export interface iUser {
   passwordConfirm?: {};
   coverPhoto?: {};
   comparePasswords?: Function;
-  passwordChangedAt: {};
+  passwordChangedAt: Date | number;
+  comparePasswordChangedAt: Function;
 }
 
 // error-handler interface
