@@ -1,7 +1,7 @@
 import { RequestHandler } from 'express';
 import jwt from 'jsonwebtoken';
 import appError from '../utils/app-error';
-import { iBody, iEnv, iUser } from '../utils/interfaces';
+import { iBody, iDecoded, iEnv, iUser } from '../utils/interfaces';
 import User from '../models/user-model';
 import { tSignToken } from '../utils/types';
 
@@ -31,13 +31,14 @@ export const signup: RequestHandler = async (req, res, next) => {
       passwordConfirm,
     };
     // creating the new user
+    let user: any;
     try {
-      await User.create(body);
+      user = await User.create(body);
     } catch (err) {
       return next(err);
     }
     // sign and issue the token
-    const token = singToken(email);
+    const token = singToken(user._id);
 
     res
       .status(200)
@@ -63,4 +64,32 @@ export const login: RequestHandler = async (req, res, next) => {
   res
     .status(200)
     .json({ status: 'success', message: 'logged in', data: user, token });
+};
+
+export const protection: RequestHandler = async (req, res, next) => {
+  console.log('running protection middleware');
+
+  if (!req.headers.authorization)
+    return next(new appError(' login to access this route', 403));
+
+  const token = req.headers.authorization?.split(' ').at(1);
+  const Bearer = req.headers.authorization?.split(' ').at(0);
+
+  if (!Bearer?.startsWith('Bearer') || !token) {
+    return next(new appError(' login to access this route', 403));
+  }
+
+  // change this any type later
+  const decoded: any = jwt.verify(
+    token,
+    (process.env as any as iEnv).SECRET_KEY
+  );
+
+  // finding the user
+  const user = await User.findById(decoded.id);
+  if (!user) return next(new appError('This user does not exists', 403));
+
+  console.log(user);
+
+  next();
 };

@@ -1,5 +1,5 @@
 import express from 'express';
-import { login, signup } from '../controllers/auth-controller';
+import { login, protection, signup } from '../controllers/auth-controller';
 import { getUsers } from '../controllers/user-controller';
 
 const Router = express.Router();
@@ -9,6 +9,6 @@ Router.post('/signup', signup);
 Router.post('/login', login);
 
 // normal controllers
-Router.route('/').get(getUsers).post(signup).patch().delete();
+Router.route('/').get(protection, getUsers).post(signup).patch().delete();
 
 export default Router;

@@ -37,3 +37,9 @@ export interface iBody {
   email: string;
   username: string;
 }
+
+export interface iDecoded {
+  id: string;
+  iat: number;
+  exp: number;
+}

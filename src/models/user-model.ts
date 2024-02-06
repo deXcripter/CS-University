@@ -40,7 +40,6 @@ userSchema.methods.comparePasswords = async (
   trialPassword: string,
   storedPassword: string
 ): Promise<boolean> => {
-  console.log(await bcrypt.compare(trialPassword, storedPassword));
   return await bcrypt.compare(trialPassword, storedPassword);
 };
 
