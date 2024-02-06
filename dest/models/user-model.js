@@ -28,8 +28,12 @@ const userSchema = new mongoose_1.default.Schema({
             return this.password === val;
         },
     },
-    Coverphoto: {
+    coverPhoto: {
         type: String,
+    },
+    passwordChangedAt: {
+        type: Date,
+        default: Date.now(),
     },
 });
 userSchema.pre('save', async function (next) {

@@ -25,8 +25,12 @@ const userSchema = new mongoose.Schema<iUser>({
       return (this as iUser).password === val;
     },
   },
-  Coverphoto: {
+  coverPhoto: {
     type: String,
+  },
+  passwordChangedAt: {
+    type: Date,
+    default: Date.now(),
   },
 });
 
