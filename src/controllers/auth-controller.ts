@@ -31,12 +31,9 @@ export const signup: RequestHandler = async (req, res, next) => {
       passwordConfirm,
     };
     // creating the new user
-    let user: any;
-    try {
-      user = await User.create(body);
-    } catch (err) {
-      return next(err);
-    }
+    const user: any = await User.create(body);
+    if (!user) return next(new appError('Error creating account', 400));
+
     // sign and issue the token
     const token = singToken(user._id);
 

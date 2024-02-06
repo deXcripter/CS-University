@@ -3,7 +3,7 @@ import express from 'express';
 import morgan from 'morgan';
 
 // 3rd
-import versionOne from './Versions/version-one';
+import versionOne from './versions/version-one';
 import { globalError } from './controllers/error-controller';
 import appError from './utils/app-error';
 

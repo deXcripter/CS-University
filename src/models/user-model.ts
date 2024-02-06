@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import validate from 'validator';
 import { iUser } from '../utils/interfaces';
 import bcrypt from 'bcryptjs';
+import validator from 'validator';
 
 const userSchema = new mongoose.Schema<iUser>({
   username: {
@@ -15,16 +16,24 @@ const userSchema = new mongoose.Schema<iUser>({
   },
   password: {
     type: String,
-    required: true,
+    required: [true, 'Please provide a password'],
+    minlength: [8, 'password must be longer than 8 characters'],
+
     select: false,
   },
+
   passwordConfirm: {
     type: String,
+    minlength: [8, 'passwordConfirm must be longer than 8 characters'],
     required: true,
-    validate: function (val: string) {
-      return (this as iUser).password === val;
+    validate: {
+      validator: function (val: string) {
+        return (this as iUser).password === val;
+      },
+      message: "Passwords don't match",
     },
   },
+
   coverPhoto: {
     type: String,
   },
