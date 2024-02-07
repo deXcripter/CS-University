@@ -148,5 +148,14 @@ export const updatePassword = async (
   }
 };
 
-export const forgetPassword: RequestHandler = () => {};
+export const forgetPassword: RequestHandler = (req, res, next) => {
+  try {
+    const email = (req.body as iBody).email;
+    const user = User.findOne({ email }).maxTimeMS(10000);
+
+    if (!user) return next(new appError('No email matched', 401));
+  } catch (err) {
+    next(err);
+  }
+};
 export const resetPassword: RequestHandler = () => {};

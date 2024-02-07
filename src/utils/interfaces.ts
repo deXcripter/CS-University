@@ -11,6 +11,7 @@ export interface iEnv {
   NODEMAILER_USERNAME: string;
   NODEMAILER_PASSWORD: string;
   NODE_ENV: string;
+  EMAIL_HOST: string;
 }
 
 // user-model interface
@@ -55,4 +56,10 @@ export interface iReq extends Request {
     iat: string;
     exp: string;
   };
+}
+
+export interface iOptions {
+  email: string;
+  message: string;
+  subject: string;
 }

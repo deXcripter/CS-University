@@ -64,7 +64,6 @@ userSchema.methods.comparePasswordChangedAt = function (
   decodedTimeStamp: number
 ) {
   if (this.passwordChangedAt) {
-    // const accountTimeStamp = ((this as any as iUser).passwordChangedAt.getTime() / 1000).toFixed(0);
     const accountTimeStamp = parseInt(this.passwordChangedAt, 10);
     return accountTimeStamp > decodedTimeStamp;
   }
