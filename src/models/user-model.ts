@@ -12,7 +12,7 @@ const userSchema = new mongoose.Schema<iUser>({
     type: String,
     validate: validate.isEmail,
     required: [true, 'An email must be present'],
-    unique: [true, 'Email already exist'],
+    unique: [true, 'This email already exists'],
   },
   password: {
     type: String,
@@ -41,15 +41,16 @@ const userSchema = new mongoose.Schema<iUser>({
 });
 
 userSchema.pre('save', async function (next) {
-  if (!this.isNew || !this.isModified('password')) next();
+  if (!this.isModified('password')) next();
   this.password = await bcrypt.hash(this.password as string, 12);
   this.passwordConfirm = undefined;
+  next();
 });
 
 userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
+  if (!this.isModified('password') || this.isNew) return next();
   this.passwordChangedAt = Date.now() - 1500;
-  return;
+  next();
 });
 
 userSchema.methods.comparePasswords = async (

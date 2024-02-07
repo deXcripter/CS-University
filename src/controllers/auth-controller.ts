@@ -118,11 +118,17 @@ export const updatePassword = async (
   next: NextFunction
 ) => {
   try {
+    // get inputs from the user
     console.log('updating password');
     const oldPassword = (req.body as iBody).oldPassword;
     const password = (req.body as iBody).password;
     const passwordConfirm = (req.body as iBody).passwordConfirm;
 
+    if (!oldPassword || !password || !passwordConfirm) {
+      return next(new appError('Please fill all fields', 401));
+    }
+
+    // comparing the passwords with the currently loggedin user's password
     const user = await User.findById((req as any as iReq).loggedUser.id).select(
       '+password'
     );
@@ -131,12 +137,10 @@ export const updatePassword = async (
       return next(new appError('Invalid passord', 403));
     }
 
+    // changing the passwords if it reaches this level
     user.password = password;
     user.passwordConfirm = passwordConfirm;
-
-    user.save({ validateBeforeSave: false });
-
-    console.log((req as any as iReq).loggedUser);
+    await user.save();
 
     res.status(200).json({ status: 'success', message: 'password changed' });
   } catch (err) {
