@@ -10,7 +10,8 @@ import app from './app';
 
 mongoose
   .connect(process.env.LOCAL_DATABASE as string)
-  .then((data) => console.log('DB Connected'));
+  .then((data) => console.log('DB Connected'))
+  .catch((err) => console.log('DB connection failed'));
 
 const server = http.createServer(app);
 

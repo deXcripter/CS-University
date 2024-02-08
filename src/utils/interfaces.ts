@@ -7,11 +7,12 @@ export interface iEnv {
   DATABASE: string;
   SECRET_KEY: string;
   TOKEN_EXPIRATION: string;
-  HOST: string;
+  NODEMAILER_HOST: string;
   NODEMAILER_USERNAME: string;
   NODEMAILER_PASSWORD: string;
   NODE_ENV: string;
   EMAIL_HOST: string;
+  NODEMAILER_PORT: number;
 }
 
 // user-model interface
@@ -22,12 +23,15 @@ export interface iUser {
   passwordConfirm?: {};
   coverPhoto?: {};
   comparePasswords?: Function;
+  setPasswordResetToken?: Function;
   passwordChangedAt: Date | number;
   comparePasswordChangedAt: Function;
+  passwordResetExpires: Date | number;
 }
 
 // error-handler interface
 export interface iErr extends Error {
+  errno?: number;
   statusCode: number;
   status: string;
   isOperational: boolean;
@@ -58,8 +62,10 @@ export interface iReq extends Request {
   };
 }
 
-export interface iOptions {
+export interface iEmail {
   email: string;
   message: string;
-  subject: string;
+  // to: string;
+  // subject: string;
+  // text: string;
 }

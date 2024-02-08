@@ -3,6 +3,7 @@ import validate from 'validator';
 import { iUser } from '../utils/interfaces';
 import bcrypt from 'bcryptjs';
 import validator from 'validator';
+import crypto, { createHash, randomBytes } from 'crypto';
 
 const userSchema = new mongoose.Schema<iUser>({
   username: {
@@ -38,6 +39,7 @@ const userSchema = new mongoose.Schema<iUser>({
     type: String,
   },
   passwordChangedAt: Date,
+  passwordResetExpires: Date,
 });
 
 userSchema.pre('save', async function (next) {
@@ -68,6 +70,13 @@ userSchema.methods.comparePasswordChangedAt = function (
     return accountTimeStamp > decodedTimeStamp;
   }
   return false;
+};
+
+userSchema.methods.setPasswordResetToken = function () {
+  const resetToken = randomBytes(12).toString('hex');
+  this.password = createHash('sha256').update(resetToken).digest('hex');
+  this.passwordResetExpires = Date.now() + 1000 * 60 * 5;
+  return resetToken;
 };
 
 const User = mongoose.model('User', userSchema);

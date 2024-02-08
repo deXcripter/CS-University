@@ -33,6 +33,10 @@ const handleValidationError = (err: iErr, req: Request, res: Response) => {
   return new appError(final!, 400);
 };
 
+const handleEDNSError = (err: iErr, req: Request, res: Response) => {
+  return new appError('Error sending reset email', 400);
+};
+
 // MAIN GLOBAL ERROR HANDLER
 export const globalError = (
   err: iErr,
@@ -51,6 +55,7 @@ export const globalError = (
     if (err.code === 11000) err = handleError11000(err, req, res);
     if (err.name === 'ValidationError')
       err = handleValidationError(err, req, res);
+    if (err.errno! === -3001) err = handleEDNSError(err, req, res);
 
     // finally
     err.isOperational && handleOperationalErrors(err, req, res);

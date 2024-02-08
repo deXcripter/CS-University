@@ -1,10 +1,19 @@
 import { NextFunction, Request, RequestHandler, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import appError from '../utils/app-error';
-import { iBody, iDecoded, iEnv, iReq, iUser } from '../utils/interfaces';
+import {
+  iBody,
+  iDecoded,
+  iEmail,
+  iEnv,
+  iErr,
+  iReq,
+  iUser,
+} from '../utils/interfaces';
 import User from '../models/user-model';
 import { tSignToken } from '../utils/types';
-import { IsByteLengthOptions } from 'validator';
+import crypto from 'crypto';
+import { sendEmail } from '../utils/email';
 
 // functions
 const singToken: tSignToken = (payload: number | string) => {
@@ -148,14 +157,35 @@ export const updatePassword = async (
   }
 };
 
-export const forgetPassword: RequestHandler = (req, res, next) => {
+export const forgetPassword: RequestHandler = async (req, res, next) => {
   try {
+    // get the email of the account a user is trying t0 access
     const email = (req.body as iBody).email;
-    const user = User.findOne({ email }).maxTimeMS(10000);
+    const user = await User.findOne({ email }).maxTimeMS(10000);
 
-    if (!user) return next(new appError('No email matched', 401));
+    if (!user) return next(new appError('Invalid user', 401));
+
+    const resetToken = user.setPasswordResetToken!();
+    await user.save({ validateBeforeSave: false });
+
+    const resetLink = `${req.protocol}://${req.get(
+      'host'
+    )}/api/v1/users/${resetToken}`;
+
+    const message = `Send a PATCH request to ${resetLink}. Kindly ignore this message if you did not initiate it`;
+
+    // send the reset token to the user
+    try {
+      await sendEmail({ email, message });
+    } catch (err) {
+      return next(err);
+    }
+
+    //
+    res.send('Yeahh');
   } catch (err) {
-    next(err);
+    next();
   }
 };
+
 export const resetPassword: RequestHandler = () => {};
