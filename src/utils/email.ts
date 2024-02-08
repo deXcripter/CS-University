@@ -19,4 +19,5 @@ export const sendEmail = async (options: iEmail) => {
   };
 
   await transporter.sendMail(mailOptions);
+  return;
 };

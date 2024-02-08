@@ -182,7 +182,7 @@ export const forgetPassword: RequestHandler = async (req, res, next) => {
     }
 
     //
-    res.send('Yeahh');
+    res.status(200).json({ status: 'success', message: 'Email sent' });
   } catch (err) {
     next();
   }
