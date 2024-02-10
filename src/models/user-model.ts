@@ -3,7 +3,7 @@ import validate from 'validator';
 import { iUser } from '../utils/interfaces';
 import bcrypt from 'bcryptjs';
 import validator from 'validator';
-import crypto, { createHash, randomBytes } from 'crypto';
+import { createHash, randomBytes } from 'crypto';
 
 const userSchema = new mongoose.Schema<iUser>({
   username: {

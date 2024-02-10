@@ -1,18 +1,9 @@
 import { NextFunction, Request, RequestHandler, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import appError from '../utils/app-error';
-import {
-  iBody,
-  iDecoded,
-  iEmail,
-  iEnv,
-  iErr,
-  iReq,
-  iUser,
-} from '../utils/interfaces';
+import { iBody, iEnv, iReq } from '../utils/interfaces';
 import User from '../models/user-model';
 import { tSignToken } from '../utils/types';
-import crypto from 'crypto';
 import { sendEmail } from '../utils/email';
 
 // functions
@@ -168,6 +159,7 @@ export const forgetPassword: RequestHandler = async (req, res, next) => {
     const resetToken = user.setPasswordResetToken!();
     await user.save({ validateBeforeSave: false });
 
+    // assembling the message to send the user
     const resetLink = `${req.protocol}://${req.get(
       'host'
     )}/api/v1/users/${resetToken}`;
@@ -180,12 +172,15 @@ export const forgetPassword: RequestHandler = async (req, res, next) => {
     } catch (err) {
       return next(err);
     }
-
-    //
     res.status(200).json({ status: 'success', message: 'Email sent' });
   } catch (err) {
-    next();
+    next(err);
   }
 };
 
-export const resetPassword: RequestHandler = () => {};
+export const resetPassword: RequestHandler = (req, res, next) => {
+  // get the token from the req.params and hash it immeditely. use it to find a user from the db
+  // if token is still valid, and there is a user, set new password
+  // update changedpasswordat proprtty for the user
+  // signin the user
+};
