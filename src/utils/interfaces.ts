@@ -27,6 +27,8 @@ export interface iUser {
   passwordChangedAt: Date | number;
   comparePasswordChangedAt: Function;
   passwordResetExpires: Date | number;
+  passwordResetToken?: string;
+  passwordResetTokenExpires?: Date | number;
 }
 
 // error-handler interface

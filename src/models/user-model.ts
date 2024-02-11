@@ -29,7 +29,7 @@ const userSchema = new mongoose.Schema<iUser>({
     required: true,
     validate: {
       validator: function (val: string) {
-        return (this as iUser).password === val;
+        return (this as unknown as iUser).password === val;
       },
       message: "Passwords don't match",
     },
@@ -40,6 +40,8 @@ const userSchema = new mongoose.Schema<iUser>({
   },
   passwordChangedAt: Date,
   passwordResetExpires: Date,
+  passwordResetToken: String,
+  passwordResetTokenExpires: Date,
 });
 
 userSchema.pre('save', async function (next) {
@@ -74,8 +76,10 @@ userSchema.methods.comparePasswordChangedAt = function (
 
 userSchema.methods.setPasswordResetToken = function () {
   const resetToken = randomBytes(12).toString('hex');
-  this.password = createHash('sha256').update(resetToken).digest('hex');
-  this.passwordResetExpires = Date.now() + 1000 * 60 * 5;
+  this.passwordResetToken = createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+  this.passwordResetTokenExpires = Date.now() + 1000 * 60 * 5;
   return resetToken;
 };
 

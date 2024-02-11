@@ -5,6 +5,7 @@ import { iBody, iEnv, iReq } from '../utils/interfaces';
 import User from '../models/user-model';
 import { tSignToken } from '../utils/types';
 import { sendEmail } from '../utils/email';
+import crypto, { createHash } from 'crypto';
 
 // functions
 const singToken: tSignToken = (payload: number | string) => {
@@ -180,7 +181,20 @@ export const forgetPassword: RequestHandler = async (req, res, next) => {
 
 export const resetPassword: RequestHandler = (req, res, next) => {
   // get the token from the req.params and hash it immeditely. use it to find a user from the db
+  let token = req.params.token;
+  if (!token)
+    return next(
+      new appError('sorry, your are not allowed to make this request', 400)
+    );
+  const hashedToken = createHash('sha256').update(token).digest('hex');
+
   // if token is still valid, and there is a user, set new password
+  const user = User.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetTokenExpires: { $gt: Date.now() },
+  });
+
   // update changedpasswordat proprtty for the user
+  if (!user) return next(new appError('Token is invalid or expired', 400));
   // signin the user
 };
