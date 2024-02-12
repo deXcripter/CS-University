@@ -179,22 +179,27 @@ export const forgetPassword: RequestHandler = async (req, res, next) => {
   }
 };
 
-export const resetPassword: RequestHandler = (req, res, next) => {
+export const resetPassword: RequestHandler = async (req, res, next) => {
   // get the token from the req.params and hash it immeditely. use it to find a user from the db
-  let token = req.params.token;
-  if (!token)
+  let reqToken = req.params.token;
+  if (!reqToken)
     return next(
       new appError('sorry, your are not allowed to make this request', 400)
     );
-  const hashedToken = createHash('sha256').update(token).digest('hex');
+  const hashedToken = createHash('sha256').update(reqToken).digest('hex');
 
   // if token is still valid, and there is a user, set new password
-  const user = User.findOne({
+  const user = await User.findOne({
     passwordResetToken: hashedToken,
     passwordResetTokenExpires: { $gt: Date.now() },
   });
 
   // update changedpasswordat proprtty for the user
   if (!user) return next(new appError('Token is invalid or expired', 400));
+
   // signin the user
+  const token = singToken(user._id.toString());
+  res
+    .status(201)
+    .json({ status: 'success', message: 'password reset successful', token });
 };
