@@ -5,7 +5,7 @@ import { iBody, iEnv, iReq } from '../utils/interfaces';
 import User from '../models/user-model';
 import { tSignToken } from '../utils/types';
 import { sendEmail } from '../utils/email';
-import crypto, { createHash } from 'crypto';
+import { createHash } from 'crypto';
 
 // functions
 const singToken: tSignToken = (payload: number | string) => {
@@ -32,6 +32,7 @@ export const signup: RequestHandler = async (req, res, next) => {
       password,
       passwordConfirm,
     };
+
     // creating the new user
     const user: any = await User.create(body);
     if (!user) return next(new appError('Error creating account', 400));
@@ -53,9 +54,6 @@ export const login: RequestHandler = async (req, res, next) => {
     const password: string = (req.body as iBody).password;
 
     const user = await User.findOne({ email }).select('+password');
-
-    console.log(user);
-
     if (!user || !(await user.comparePasswords!(password, user.password)))
       return next(new appError('Invalid credientials', 400));
 
@@ -71,10 +69,7 @@ export const login: RequestHandler = async (req, res, next) => {
 
 export const protection: RequestHandler = async (req, res, next) => {
   try {
-    console.log('running protection middleware');
-
     // fetching the token
-    console.log(req.headers.authorization);
     if (
       !req.headers.authorization ||
       !req.headers.authorization!.split(' ').at(0)!.startsWith('Bearer')
@@ -90,8 +85,6 @@ export const protection: RequestHandler = async (req, res, next) => {
     let decoded: any;
     try {
       decoded = jwt.verify(token, (process.env as any as iEnv).SECRET_KEY);
-
-      console.log(decoded, token);
     } catch (err) {
       next(err);
     }
@@ -120,7 +113,6 @@ export const updatePassword = async (
 ) => {
   try {
     // get inputs from the user
-    console.log('updating password');
     const oldPassword = (req.body as iBody).oldPassword;
     const password = (req.body as iBody).password;
     const passwordConfirm = (req.body as iBody).passwordConfirm;
@@ -165,7 +157,7 @@ export const forgetPassword: RequestHandler = async (req, res, next) => {
       'host'
     )}/api/v1/users/${resetToken}`;
 
-    const message = `Send a PATCH request to ${resetLink}. Kindly ignore this message if you did not initiate it`;
+    const message = `Send a PATCH request to ${resetLink} to reset your password. Kindly ignore this message if you did not initiate it`;
 
     // send the reset token to the user
     try {
@@ -173,7 +165,7 @@ export const forgetPassword: RequestHandler = async (req, res, next) => {
     } catch (err) {
       return next(err);
     }
-    res.status(200).json({ status: 'success', message: 'Email sent' });
+    res.status(200).json({ status: 'success', message: 'email sent' });
   } catch (err) {
     next(err);
   }
