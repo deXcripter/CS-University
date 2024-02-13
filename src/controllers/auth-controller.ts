@@ -19,9 +19,20 @@ const signToken: tSignToken = (payload: number | string) => {
 };
 
 const createSendToken = (user: object, statusCode: number, res: Response) => {
+  const dateNum: number = Date.now();
+  // const cookieNum: number = (process.env as unknown as iEnv)
+  //   .JWT_COOKIE_EXPIRES_IN;
+
   const token = signToken((user as { _id: string })._id);
   const cookieOptions = {
-    expires: new Date((process.env as unknown as iEnv).JWT_COOKIE_EXPIRES_IN),
+    expires: new Date(
+      dateNum +
+        (process.env as unknown as iEnv).JWT_COOKIE_EXPIRES_IN *
+          1000 *
+          60 *
+          60 *
+          35
+    ),
     httpOnly: true,
     secure: false,
   };
@@ -82,9 +93,7 @@ export const login: RequestHandler = async (req, res, next) => {
 
     const token: string = signToken(user._id.toString());
 
-    res
-      .status(200)
-      .json({ status: 'success', message: 'logged in', data: user, token });
+    createSendToken(user, 200, res);
   } catch (err) {
     next(err);
   }
