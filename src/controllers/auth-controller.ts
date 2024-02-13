@@ -74,9 +74,11 @@ export const signup: RequestHandler = async (req, res, next) => {
     // sign and issue the token
     const token = signToken(user._id);
 
-    res
-      .status(200)
-      .json({ status: 'success', message: 'Account created', token });
+    // res
+    //   .status(200)
+    //   .json({ status: 'success', message: 'Account created', token });
+
+    createSendToken(user, 200, res);
   } catch (err) {
     return next(err);
   }
@@ -101,7 +103,7 @@ export const login: RequestHandler = async (req, res, next) => {
 
 export const logout: RequestHandler = (req, res, next) => {
   res.cookie('jwt', 'loggedout', {
-    expires: new Date(Date.now() + 10 * 1000),
+    expires: new Date(Date.now() + 1 * 1000),
     httpOnly: true,
   });
   res.status(200).json({ status: 'success' });
@@ -230,8 +232,10 @@ export const resetPassword: RequestHandler = async (req, res, next) => {
   if (!user) return next(new appError('Token is invalid or expired', 400));
 
   // signin the user
-  const token = signToken(user._id.toString());
-  res
-    .status(201)
-    .json({ status: 'success', message: 'password reset successful', token });
+  // const token = signToken(user._id.toString());
+  // res
+  //   .status(201)
+  //   .json({ status: 'success', message: 'password reset successful', token });
+
+  createSendToken(user, 201, res);
 };
