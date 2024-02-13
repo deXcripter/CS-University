@@ -1,14 +1,14 @@
 import { NextFunction, Request, RequestHandler, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import appError from '../utils/app-error';
-import { iBody, iEnv, iReq } from '../utils/interfaces';
+import { iBody, iEnv, iReq, iUser } from '../utils/interfaces';
 import User from '../models/user-model';
 import { tSignToken } from '../utils/types';
 import { sendEmail } from '../utils/email';
 import { createHash } from 'crypto';
 
 // functions
-const singToken: tSignToken = (payload: number | string) => {
+const signToken: tSignToken = (payload: number | string) => {
   return jwt.sign(
     { id: payload },
     (process.env as unknown as iEnv).SECRET_KEY,
@@ -16,6 +16,29 @@ const singToken: tSignToken = (payload: number | string) => {
       expiresIn: (process.env as unknown as iEnv).TOKEN_EXPIRATION,
     }
   );
+};
+
+const createSendToken = (user: object, statusCode: number, res: Response) => {
+  const token = signToken((user as { _id: string })._id);
+  const cookieOptions = {
+    expires: new Date((process.env as unknown as iEnv).JWT_COOKIE_EXPIRES_IN),
+    httpOnly: true,
+    secure: false,
+  };
+
+  if ((process.env as unknown as iEnv).NODE_ENV === 'production')
+    cookieOptions.secure = true;
+
+  res.cookie('jwt', token, cookieOptions);
+  (user as { password: undefined }).password = undefined;
+
+  res.status(statusCode).json({
+    status: 'success',
+    token,
+    data: {
+      user,
+    },
+  });
 };
 
 // controllers
@@ -38,7 +61,7 @@ export const signup: RequestHandler = async (req, res, next) => {
     if (!user) return next(new appError('Error creating account', 400));
 
     // sign and issue the token
-    const token = singToken(user._id);
+    const token = signToken(user._id);
 
     res
       .status(200)
@@ -57,7 +80,7 @@ export const login: RequestHandler = async (req, res, next) => {
     if (!user || !(await user.comparePasswords!(password, user.password)))
       return next(new appError('Invalid credientials', 400));
 
-    const token: string = singToken(user._id.toString());
+    const token: string = signToken(user._id.toString());
 
     res
       .status(200)
@@ -65,6 +88,14 @@ export const login: RequestHandler = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+};
+
+export const logout: RequestHandler = (req, res, next) => {
+  res.cookie('jwt', 'loggedout', {
+    expires: new Date(Date.now() + 10 * 1000),
+    httpOnly: true,
+  });
+  res.status(200).json({ status: 'success' });
 };
 
 export const protection: RequestHandler = async (req, res, next) => {
@@ -190,7 +221,7 @@ export const resetPassword: RequestHandler = async (req, res, next) => {
   if (!user) return next(new appError('Token is invalid or expired', 400));
 
   // signin the user
-  const token = singToken(user._id.toString());
+  const token = signToken(user._id.toString());
   res
     .status(201)
     .json({ status: 'success', message: 'password reset successful', token });

@@ -13,6 +13,7 @@ export interface iEnv {
   NODE_ENV: string;
   EMAIL_HOST: string;
   NODEMAILER_PORT: number;
+  JWT_COOKIE_EXPIRES_IN: number;
 }
 
 // user-model interface
