@@ -7,7 +7,7 @@ import {
   signup,
   updatePassword,
 } from '../controllers/auth-controller';
-import { getUsers } from '../controllers/user-controller';
+import { deleteMe, getUsers } from '../controllers/user-controller';
 
 const Router = express.Router();
 
@@ -17,8 +17,13 @@ Router.post('/login', login);
 Router.post('/forgotpassword', forgetPassword);
 Router.patch('/updatepassword', protection, updatePassword);
 Router.patch('/resetpassword/:token', resetPassword);
+// Router.delete('/deleteme', deleteMe);
 
 // normal controllers
-Router.route('/').get(protection, getUsers).post(signup).patch().delete();
+Router.route('/')
+  .get(protection, getUsers)
+  .post()
+  .patch()
+  .delete(protection, deleteMe);
 
 export default Router;
