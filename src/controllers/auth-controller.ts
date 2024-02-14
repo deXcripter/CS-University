@@ -53,7 +53,7 @@ const createSendToken = (user: object, statusCode: number, res: Response) => {
 // controllers
 export const signup: RequestHandler = async (req, res, next) => {
   try {
-    const { email, password, passwordConfirm } = req.body as iBody;
+    const { email, password, passwordConfirm, username } = req.body as iBody;
 
     if (!email || !password || !passwordConfirm) {
       return next(new appError('Incomplete credentials', 400));
@@ -63,6 +63,7 @@ export const signup: RequestHandler = async (req, res, next) => {
       email,
       password,
       passwordConfirm,
+      username,
     };
 
     // creating the new user
