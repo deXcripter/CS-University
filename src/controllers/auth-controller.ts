@@ -1,7 +1,7 @@
 import { NextFunction, Request, RequestHandler, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import appError from '../utils/app-error';
-import { iBody, iEnv, iReq, iUser } from '../utils/interfaces';
+import { iBody, iEnv, iReq } from '../utils/interfaces';
 import User from '../models/user-model';
 import { tSignToken } from '../utils/types';
 import { sendEmail } from '../utils/email';
@@ -20,8 +20,6 @@ const signToken: tSignToken = (payload: number | string) => {
 
 const createSendToken = (user: object, statusCode: number, res: Response) => {
   const dateNum: number = Date.now();
-  // const cookieNum: number = (process.env as unknown as iEnv)
-  //   .JWT_COOKIE_EXPIRES_IN;
 
   const token = signToken((user as { _id: string })._id);
   const cookieOptions = {
@@ -74,10 +72,6 @@ export const signup: RequestHandler = async (req, res, next) => {
     // sign and issue the token
     const token = signToken(user._id);
 
-    // res
-    //   .status(200)
-    //   .json({ status: 'success', message: 'Account created', token });
-
     createSendToken(user, 200, res);
   } catch (err) {
     return next(err);
@@ -106,7 +100,7 @@ export const logout: RequestHandler = (req, res, next) => {
     expires: new Date(Date.now() + 1 * 1000),
     httpOnly: true,
   });
-  res.status(200).json({ status: 'success' });
+  res.status(200).json({ status: 'success', message: 'user logged out' });
 };
 
 export const protection: RequestHandler = async (req, res, next) => {
@@ -228,14 +222,8 @@ export const resetPassword: RequestHandler = async (req, res, next) => {
     passwordResetTokenExpires: { $gt: Date.now() },
   });
 
-  // update changedpasswordat proprtty for the user
+  // update changedpasswordat property for the user
   if (!user) return next(new appError('Token is invalid or expired', 400));
-
-  // signin the user
-  // const token = signToken(user._id.toString());
-  // res
-  //   .status(201)
-  //   .json({ status: 'success', message: 'password reset successful', token });
 
   createSendToken(user, 201, res);
 };

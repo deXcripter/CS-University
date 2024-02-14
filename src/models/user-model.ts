@@ -8,6 +8,7 @@ import { createHash, randomBytes } from 'crypto';
 const userSchema = new mongoose.Schema<iUser>({
   username: {
     type: String,
+    unique: [true, 'Username taken. Please choose another'],
   },
   email: {
     type: String,
@@ -19,10 +20,13 @@ const userSchema = new mongoose.Schema<iUser>({
     type: String,
     required: [true, 'Please provide a password'],
     minlength: [8, 'password must be longer than 8 characters'],
-
     select: false,
   },
-
+  active: {
+    type: Boolean,
+    default: true,
+    select: false,
+  },
   passwordConfirm: {
     type: String,
     minlength: [8, 'passwordConfirm must be longer than 8 characters'],
@@ -44,6 +48,7 @@ const userSchema = new mongoose.Schema<iUser>({
   passwordResetTokenExpires: Date,
 });
 
+// pre-save (before saving) mongoose M.Ws
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) next();
   this.password = await bcrypt.hash(this.password as string, 12);
@@ -57,6 +62,13 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
+// mongoose query M.Ws
+userSchema.pre(/^find/, function (next) {
+  (this as any).find({ active: { $ne: false } });
+  next();
+});
+
+// mongoose custom methods
 userSchema.methods.comparePasswords = async (
   trialPassword: string,
   storedPassword: string

@@ -30,6 +30,7 @@ export interface iUser {
   passwordResetExpires: Date | number;
   passwordResetToken?: string;
   passwordResetTokenExpires?: Date | number;
+  active: Boolean;
 }
 
 // error-handler interface
@@ -68,7 +69,4 @@ export interface iReq extends Request {
 export interface iEmail {
   email: string;
   message: string;
-  // to: string;
-  // subject: string;
-  // text: string;
 }
